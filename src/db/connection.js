@@ -1,15 +1,14 @@
 const { Pool, types } = require('pg');
 require('dotenv').config();
 
-// PostgreSQL devuelve NUMERIC/DECIMAL como string; lo convertimos a número
 types.setTypeParser(1700, parseFloat);
 
 const poolConfig = {
-  host: process.env.DB_HOST || 'localhost',
+  host: process.env.DB_HOST || 'db.gqqcynlogidtqvnfbtbp.supabase.co',
   port: parseInt(process.env.DB_PORT || '5432', 10),
-  database: process.env.DB_NAME || 'campus_delivery',
+  database: process.env.DB_NAME || 'postgres',
   user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
+  password: process.env.DB_PASSWORD || 'Migatamia345',
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
