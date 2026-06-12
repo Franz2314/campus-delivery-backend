@@ -9,14 +9,12 @@ if (process.env.DATABASE_URL) {
   poolConfig.connectionString = process.env.DATABASE_URL;
   poolConfig.ssl = { rejectUnauthorized: false };
 } else {
-  poolConfig.host = process.env.DB_HOST || 'db.gqqcynlogidtqvnfbtbp.supabase.co';
-  poolConfig.port = parseInt(process.env.DB_PORT || '5432', 10);
+  poolConfig.host = process.env.DB_HOST || 'aws-1-us-west-2.pooler.supabase.com';
+  poolConfig.port = parseInt(process.env.DB_PORT || '6543', 10);
   poolConfig.database = process.env.DB_NAME || 'postgres';
-  poolConfig.user = process.env.DB_USER || 'postgres';
+  poolConfig.user = process.env.DB_USER || 'postgres.gqqcynlogidtqvnfbtbp';
   poolConfig.password = process.env.DB_PASSWORD || 'Migatamia345';
-  if (process.env.DB_SSL === 'true') {
-    poolConfig.ssl = { rejectUnauthorized: false };
-  }
+  poolConfig.ssl = { rejectUnauthorized: false };
 }
 
 poolConfig.max = 20;
