@@ -1,12 +1,12 @@
 const { query } = require('../db/connection');
 
 const pedidoModel = {
-  async create({ estudiante_id, negocio_id, pabellon_id, hora_programada, total, comprobante_url }) {
+  async create({ estudiante_id, negocio_id, pabellon_id, piso, hora_programada, total, comprobante_url }) {
     const result = await query(
-      `INSERT INTO pedidos (estudiante_id, negocio_id, pabellon_id, hora_programada, total, comprobante_url)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO pedidos (estudiante_id, negocio_id, pabellon_id, piso, hora_programada, total, comprobante_url)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
-      [estudiante_id, negocio_id, pabellon_id, hora_programada, total, comprobante_url || null],
+      [estudiante_id, negocio_id, pabellon_id, piso || 1, hora_programada, total, comprobante_url || null],
     );
     return result.rows[0];
   },
@@ -44,7 +44,9 @@ const pedidoModel = {
       `SELECT p.*,
               n.nombre AS negocio_nombre,
               pb.nombre AS pabellon_nombre,
-              u.nombre AS estudiante_nombre
+              pb.max_pisos,
+              u.nombre AS estudiante_nombre,
+              u.email AS estudiante_email
        FROM pedidos p
        JOIN negocios n ON n.id = p.negocio_id
        JOIN pabellones pb ON pb.id = p.pabellon_id
@@ -65,7 +67,7 @@ const pedidoModel = {
 
   async findByUsuario(usuarioId, rol) {
     let sql = `
-      SELECT p.*, n.nombre AS negocio_nombre, pb.nombre AS pabellon_nombre
+      SELECT p.*, n.nombre AS negocio_nombre, pb.nombre AS pabellon_nombre, pb.max_pisos
       FROM pedidos p
       JOIN negocios n ON n.id = p.negocio_id
       JOIN pabellones pb ON pb.id = p.pabellon_id
@@ -103,12 +105,31 @@ const pedidoModel = {
     return result.rows[0] || null;
   },
 
-  async cancelar(id) {
+  async cancelar(id, motivo) {
+    const params = [id];
+    let sql = `UPDATE pedidos SET estado = 'cancelado', updated_at = NOW()`;
+    if (motivo) {
+      sql += `, motivo_cancelacion = $2`;
+      params.push(motivo);
+    }
+    sql += ` WHERE id = $1 AND estado IN ('pendiente', 'confirmado') RETURNING *`;
+    const result = await query(sql, params);
+    return result.rows[0] || null;
+  },
+
+  async rechazar(id, motivo) {
     const result = await query(
-      `UPDATE pedidos SET estado = 'cancelado', updated_at = NOW()
-       WHERE id = $1
-       AND estado IN ('pendiente', 'confirmado')
-       RETURNING *`,
+      `UPDATE pedidos SET estado = 'rechazado', comprobante_rechazado = true, motivo_cancelacion = $2, updated_at = NOW()
+       WHERE id = $1 AND estado = 'pendiente' RETURNING *`,
+      [id, motivo],
+    );
+    return result.rows[0] || null;
+  },
+
+  async verificarComprobante(id) {
+    const result = await query(
+      `UPDATE pedidos SET comprobante_verificado = true, updated_at = NOW()
+       WHERE id = $1 RETURNING *`,
       [id],
     );
     return result.rows[0] || null;
@@ -117,6 +138,21 @@ const pedidoModel = {
   async findNegocioByUsuarioId(usuarioId) {
     const result = await query('SELECT * FROM negocios WHERE usuario_id = $1', [usuarioId]);
     return result.rows[0] || null;
+  },
+
+  async darPuntos(estudianteId, cantidad, concepto, pedidoId) {
+    const puntos = await query(
+      `INSERT INTO puntos (estudiante_id, saldo) VALUES ($1, $2)
+       ON CONFLICT (estudiante_id) DO UPDATE SET saldo = puntos.saldo + $2, updated_at = NOW()
+       RETURNING *`,
+      [estudianteId, cantidad],
+    );
+    await query(
+      `INSERT INTO puntos_historial (estudiante_id, tipo, cantidad, concepto, pedido_id)
+       VALUES ($1, 'ganado', $2, $3, $4)`,
+      [estudianteId, cantidad, concepto, pedidoId],
+    );
+    return puntos.rows[0];
   },
 };
 

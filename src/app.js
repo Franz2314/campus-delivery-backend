@@ -6,6 +6,7 @@ const authRoutes = require('./routes/auth.routes');
 const menuRoutes = require('./routes/menu.routes');
 const pedidosRoutes = require('./routes/pedidos.routes');
 const negociosRoutes = require('./routes/negocios.routes');
+const puntosRoutes = require('./routes/puntos.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,6 +31,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api', menuRoutes);
 app.use('/api/pedidos', pedidosRoutes);
 app.use('/api/negocios', negociosRoutes);
+app.use('/api/puntos', puntosRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

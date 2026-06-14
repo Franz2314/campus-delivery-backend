@@ -156,7 +156,7 @@ const menuController = {
   async listarPabellones(req, res) {
     try {
       const { query } = require('../db/connection');
-      const result = await query('SELECT id, nombre, codigo, descripcion FROM pabellones ORDER BY nombre ASC');
+      const result = await query('SELECT id, nombre, codigo, descripcion, max_pisos FROM pabellones ORDER BY nombre ASC');
       res.json(result.rows);
     } catch (err) {
       console.error('[menu/listarPabellones]', err);

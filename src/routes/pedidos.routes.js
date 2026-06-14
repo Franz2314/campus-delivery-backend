@@ -9,6 +9,7 @@ router.post('/', autenticar, permitir('estudiante'), pedidosController.crear);
 router.get('/', autenticar, pedidosController.listar);
 router.get('/:id', autenticar, pedidosController.detalle);
 router.put('/:id/estado', autenticar, permitir('negocio', 'repartidor'), pedidosController.actualizarEstado);
-router.put('/:id/cancelar', autenticar, permitir('estudiante'), pedidosController.cancelar);
+router.put('/:id/cancelar', autenticar, pedidosController.cancelar);
+router.put('/:id/rechazar-comprobante', autenticar, permitir('negocio', 'repartidor'), pedidosController.rechazarComprobante);
 
 module.exports = router;
