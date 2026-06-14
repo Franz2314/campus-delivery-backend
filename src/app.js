@@ -8,6 +8,9 @@ const pedidosRoutes = require('./routes/pedidos.routes');
 const negociosRoutes = require('./routes/negocios.routes');
 const puntosRoutes = require('./routes/puntos.routes');
 
+const path = require('path');
+const fs = require('fs');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -15,6 +18,16 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Servir web client (SPA)
+const publicPath = path.join(__dirname, '..', 'public');
+if (fs.existsSync(publicPath)) {
+  app.use(express.static(publicPath));
+  // SPA fallback: todas las rutas no-API sirven index.html
+  app.get(/^(?!\/api\/).*/, (req, res) => {
+    res.sendFile(path.join(publicPath, 'index.html'));
+  });
+}
 
 // Logging de requests
 app.use((req, res, next) => {
