@@ -81,8 +81,8 @@ const pedidoModel = {
       sql += ' AND n.usuario_id = $1';
       params.push(usuarioId);
     } else if (rol === 'repartidor') {
-      sql += ' AND (p.repartidor_id = $1 OR (p.repartidor_id IS NULL AND p.estado = $2))';
-      params.push(usuarioId, 'confirmado');
+      sql += ' AND (p.repartidor_id = $1 OR (p.repartidor_id IS NULL AND p.estado IN ($2, $3)))';
+      params.push(usuarioId, 'confirmado', 'en_preparacion');
     }
 
     sql += ' ORDER BY p.created_at DESC';
@@ -98,6 +98,8 @@ const pedidoModel = {
     if (repartidorId !== undefined) {
       sql += `, repartidor_id = $${idx++}`;
       params.push(repartidorId);
+      // Generar código de recogida cuando el repartidor acepta
+      sql += `, codigo_recogida = COALESCE(codigo_recogida, LPAD(floor(random() * 1000000)::text, 6, '0'))`;
     }
 
     sql += ` WHERE id = $1 RETURNING *`;
