@@ -44,9 +44,17 @@ const authController = {
       if (rol === 'negocio') {
         const { query } = require('../db/connection');
         await query(
-          'INSERT INTO negocios (usuario_id, nombre) VALUES ($1, $2)',
+          'INSERT INTO negocios (usuario_id, nombre) VALUES ($1, $2) ON CONFLICT DO NOTHING',
           [usuario.id, nombre.trim()],
         );
+      }
+
+      // Obtener negocio_id si es negocio
+      let negocioId = null;
+      if (rol === 'negocio') {
+        const { query } = require('../db/connection');
+        const { rows } = await query('SELECT id FROM negocios WHERE usuario_id = $1', [usuario.id]);
+        negocioId = rows[0]?.id || null;
       }
 
       const token = generarToken(usuario);
@@ -58,6 +66,7 @@ const authController = {
           email: usuario.email,
           telefono: usuario.telefono,
           rol: usuario.rol,
+          ...(negocioId ? { negocio_id: negocioId } : {}),
         },
       });
     } catch (err) {
@@ -89,6 +98,14 @@ const authController = {
         return res.status(401).json({ error: 'Credenciales inválidas' });
       }
 
+      // Obtener negocio_id si es negocio
+      let negocioId = null;
+      if (usuario.rol === 'negocio') {
+        const { query } = require('../db/connection');
+        const { rows } = await query('SELECT id FROM negocios WHERE usuario_id = $1', [usuario.id]);
+        negocioId = rows[0]?.id || null;
+      }
+
       const token = generarToken(usuario);
       res.json({
         token,
@@ -98,6 +115,7 @@ const authController = {
           email: usuario.email,
           telefono: usuario.telefono,
           rol: usuario.rol,
+          ...(negocioId ? { negocio_id: negocioId } : {}),
         },
       });
     } catch (err) {
@@ -112,7 +130,15 @@ const authController = {
       if (!usuario) {
         return res.status(404).json({ error: 'Usuario no encontrado' });
       }
-      res.json(usuario);
+
+      let negocioId = null;
+      if (usuario.rol === 'negocio') {
+        const { query } = require('../db/connection');
+        const { rows } = await query('SELECT id FROM negocios WHERE usuario_id = $1', [usuario.id]);
+        negocioId = rows[0]?.id || null;
+      }
+
+      res.json({ ...usuario, ...(negocioId ? { negocio_id: negocioId } : {}) });
     } catch (err) {
       console.error('[auth/perfil]', err);
       res.status(500).json({ error: 'Error interno del servidor' });
