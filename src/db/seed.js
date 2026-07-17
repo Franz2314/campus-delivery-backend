@@ -60,10 +60,10 @@ async function seed() {
     let negocioId;
     if (existingNeg.length === 0) {
       const { rows: newNeg } = await client.query(
-        `INSERT INTO negocios (id, usuario_id, nombre, descripcion)
-         VALUES (gen_random_uuid(), $1, $2, $3) RETURNING id`,
+        `INSERT INTO negocios (id, usuario_id, nombre, descripcion, imagen_url)
+         VALUES (gen_random_uuid(), $1, $2, $3, $4) RETURNING id`,
         [negocioUserId, 'Doña Pepa', 'Comida casera para estudiantes',
-       imagen_url: 'https://campus-delivery-backend-avyi.onrender.com/images/dona-pepa.jpg',],
+        'https://campus-delivery-backend-avyi.onrender.com/images/dona-pepa.jpg'],
       );
       negocioId = newNeg[0].id;
     } else {
