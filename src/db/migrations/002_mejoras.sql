@@ -1,7 +1,7 @@
 -- Mejoras: puntos, pabellon F, pisos, cancelacion con motivo
 
 -- Agregar pabellón F
-INSERT INTO pabellones (nombre, codigo) VALUES ('Pabellón F', 'PF');
+INSERT INTO pabellones (nombre, codigo) VALUES ('Pabellón F', 'PF') ON CONFLICT DO NOTHING;
 
 -- Agregar max_pisos a pabellones
 ALTER TABLE pabellones ADD COLUMN IF NOT EXISTS max_pisos INTEGER DEFAULT 8;
