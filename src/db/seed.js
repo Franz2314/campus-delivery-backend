@@ -62,7 +62,8 @@ async function seed() {
       const { rows: newNeg } = await client.query(
         `INSERT INTO negocios (id, usuario_id, nombre, descripcion)
          VALUES (gen_random_uuid(), $1, $2, $3) RETURNING id`,
-        [negocioUserId, 'Doña Pepa', 'Comida casera para estudiantes'],
+        [negocioUserId, 'Doña Pepa', 'Comida casera para estudiantes',
+       imagen_url: 'https://campus-delivery-backend-avyi.onrender.com/images/dona-pepa.jpg',],
       );
       negocioId = newNeg[0].id;
     } else {
@@ -71,12 +72,12 @@ async function seed() {
 
     // Productos
     const productos = [
-      { nombre: 'Café con leche', precio: 5.00, categoria: 'Bebidas' },
-      { nombre: 'Sánguche de pollo', precio: 8.50, categoria: 'Snacks' },
-      { nombre: 'Lomo saltado', precio: 14.00, categoria: 'Almuerzos' },
-      { nombre: 'Tequeños (6 und)', precio: 7.00, categoria: 'Snacks' },
-      { nombre: 'Chicha morada', precio: 4.00, categoria: 'Bebidas' },
-      { nombre: 'Alfajor de maicena', precio: 3.50, categoria: 'Postres' },
+      { nombre: 'Café con leche', imagen_url: 'https://campus-delivery-backend-avyi.onrender.com/images/cafe.jpg', precio: 5.00, categoria: 'Bebidas' },
+      { nombre: 'Sánguche de pollo', imagen_url: 'https://campus-delivery-backend-avyi.onrender.com/images/sanguche.jpg', precio: 8.50, categoria: 'Snacks' },
+      { nombre: 'Lomo saltado', imagen_url: 'https://campus-delivery-backend-avyi.onrender.com/images/lomo.jpg', precio: 14.00, categoria: 'Almuerzos' },
+      { nombre: 'Tequeños (6 und)', imagen_url: 'https://campus-delivery-backend-avyi.onrender.com/images/tequenos.jpg', precio: 7.00, categoria: 'Snacks' },
+      { nombre: 'Chicha morada', imagen_url: 'https://campus-delivery-backend-avyi.onrender.com/images/chicha.jpg', precio: 4.00, categoria: 'Bebidas' },
+      { nombre: 'Alfajor de maicena', imagen_url: 'https://campus-delivery-backend-avyi.onrender.com/images/alfajor.jpg', precio: 3.50, categoria: 'Postres' },
     ];
     // Limpiar y re-insertar productos de prueba
     await client.query(`DELETE FROM productos WHERE negocio_id = $1`, [negocioId]);
