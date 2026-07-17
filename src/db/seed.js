@@ -83,9 +83,9 @@ async function seed() {
     await client.query(`DELETE FROM productos WHERE negocio_id = $1`, [negocioId]);
     for (const p of productos) {
       await client.query(
-        `INSERT INTO productos (id, negocio_id, nombre, precio, categoria, disponible)
-         VALUES (gen_random_uuid(), $1, $2, $3, $4, true)`,
-        [negocioId, p.nombre, p.precio, p.categoria],
+        `INSERT INTO productos (id, negocio_id, nombre, imagen_url, precio, categoria, disponible)
+         VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, true)`,
+        [negocioId, p.nombre, p.imagen_url, p.precio, p.categoria],
       );
     }
 
