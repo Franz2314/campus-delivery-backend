@@ -21,3 +21,11 @@ CREATE TABLE IF NOT EXISTS menu_items (
 
 CREATE INDEX IF NOT EXISTS idx_menus_negocio ON menus(negocio_id);
 CREATE INDEX IF NOT EXISTS idx_menu_items_menu ON menu_items(menu_id);
+
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'uq_menus_negocio_nombre'
+  ) THEN
+    ALTER TABLE menus ADD CONSTRAINT uq_menus_negocio_nombre UNIQUE (negocio_id, nombre);
+  END IF;
+END $$;
