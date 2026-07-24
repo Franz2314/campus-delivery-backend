@@ -7,6 +7,7 @@ const menuRoutes = require('./routes/menu.routes');
 const pedidosRoutes = require('./routes/pedidos.routes');
 const negociosRoutes = require('./routes/negocios.routes');
 const puntosRoutes = require('./routes/puntos.routes');
+const menusRoutes = require('./routes/menus.routes');
 
 const path = require('path');
 const fs = require('fs');
@@ -45,6 +46,7 @@ app.use('/api', menuRoutes);
 app.use('/api/pedidos', pedidosRoutes);
 app.use('/api/negocios', negociosRoutes);
 app.use('/api/puntos', puntosRoutes);
+app.use('/api', menusRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

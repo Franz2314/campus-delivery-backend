@@ -111,9 +111,64 @@ async function seed() {
       );
     }
 
+    // Menús del día
+    const menus = [
+      {
+        nombre: 'Menú Universitario',
+        descripcion: 'Sopa, plato fuerte y bebida — ideal para el día a día',
+        precio: 10.00,
+        items: [
+          { tipo: 'sopa', nombre: 'Sopa de casa' },
+          { tipo: 'plato_fuerte', nombre: 'Pollo saltado con arroz' },
+          { tipo: 'bebida', nombre: 'Chicha morada' },
+        ],
+      },
+      {
+        nombre: 'Ejecutivo 1',
+        descripcion: 'Entrada a elección (sopa u ocopa), plato fuerte, postre y bebida',
+        precio: 15.00,
+        items: [
+          { tipo: 'entrada', nombre: 'Sopa o Ocopa' },
+          { tipo: 'plato_fuerte', nombre: 'Arroz con pollo' },
+          { tipo: 'postre', nombre: 'Mazamorra morada' },
+          { tipo: 'bebida', nombre: 'Limonada' },
+        ],
+      },
+      {
+        nombre: 'Ejecutivo 2',
+        descripcion: 'Entrada a elección (sopa u ocopa), plato fuerte, postre y bebida',
+        precio: 16.00,
+        items: [
+          { tipo: 'entrada', nombre: 'Sopa u Ocopa' },
+          { tipo: 'plato_fuerte', nombre: 'Escabeche de pollo con arroz' },
+          { tipo: 'postre', nombre: 'Arroz con leche' },
+          { tipo: 'bebida', nombre: 'Maracuyá' },
+        ],
+      },
+    ];
+    for (const m of menus) {
+      const { rows: menuRows } = await client.query(
+        `INSERT INTO menus (id, negocio_id, nombre, descripcion, precio)
+         VALUES (gen_random_uuid(), $1, $2, $3, $4)
+         ON CONFLICT DO NOTHING
+         RETURNING id`,
+        [negocioId, m.nombre, m.descripcion, m.precio],
+      );
+      if (menuRows.length > 0) {
+        for (const item of m.items) {
+          await client.query(
+            `INSERT INTO menu_items (id, menu_id, tipo, nombre)
+             VALUES (gen_random_uuid(), $1, $2, $3)`,
+            [menuRows[0].id, item.tipo, item.nombre],
+          );
+        }
+      }
+    }
+
     await client.query('COMMIT');
     console.log('[seed] Datos de prueba insertados correctamente.');
     console.log('  Mateo tiene 150 puntos de prueba');
+    console.log('  3 menús del día creados para Doña Pepa');
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('[seed] Error:', err.message);
