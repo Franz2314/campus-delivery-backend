@@ -1,5 +1,6 @@
 const pedidoModel = require('../models/pedido.model');
 const productoModel = require('../models/producto.model');
+const menuModel = require('../models/menu.model');
 
 const pedidosController = {
   async crear(req, res) {
@@ -12,12 +13,18 @@ const pedidosController = {
 
       let total = 0;
       const detalles = [];
+      let negocioId = null;
       for (const item of items) {
-        const producto = await productoModel.findById(item.producto_id);
+        let producto = await productoModel.findById(item.producto_id);
+        let esMenu = false;
         if (!producto) {
-          return res.status(404).json({ error: `Producto ${item.producto_id} no encontrado` });
+          producto = await menuModel.findById(item.producto_id);
+          if (!producto) {
+            return res.status(404).json({ error: `Producto ${item.producto_id} no encontrado` });
+          }
+          esMenu = true;
         }
-        if (!producto.disponible) {
+        if (!esMenu && !producto.disponible) {
           return res.status(400).json({ error: `Producto "${producto.nombre}" no está disponible` });
         }
         const subtotal = parseFloat(producto.precio) * item.cantidad;
@@ -29,10 +36,8 @@ const pedidosController = {
           cantidad: item.cantidad,
           subtotal,
         });
+        if (!negocioId) negocioId = producto.negocio_id;
       }
-
-      const primerProducto = await productoModel.findById(items[0].producto_id);
-      const negocioId = primerProducto.negocio_id;
 
       const pedido = await pedidoModel.create({
         estudiante_id: req.usuario.id,
