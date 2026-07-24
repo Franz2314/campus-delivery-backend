@@ -112,24 +112,27 @@ async function seed() {
     }
 
     // Menús del día
+    const img = (name) => `https://campus-delivery-backend-avyi.onrender.com/images/${name}`;
     const menus = [
       {
         nombre: 'Menú Universitario',
         descripcion: 'Sopa, plato fuerte y bebida — ideal para el día a día',
-        precio: 10.00,
+        precio: 11.00,
+        imagen_url: img('dona-pepa.jpg'),
         items: [
-          { tipo: 'sopa', nombre: 'Sopa de casa' },
-          { tipo: 'plato_fuerte', nombre: 'Pollo saltado con arroz' },
-          { tipo: 'bebida', nombre: 'Chicha morada' },
+          { tipo: 'sopa', nombre: 'Sopa de casa', imagen_url: img('caldo_gallina.jpg') },
+          { tipo: 'plato_fuerte', nombre: 'Pollo saltado con arroz', imagen_url: img('arroz_pollo.jpg') },
+          { tipo: 'bebida', nombre: 'Chicha morada', imagen_url: img('chicha.jpg') },
         ],
       },
       {
         nombre: 'Ejecutivo 1',
         descripcion: 'Entrada a elección (sopa u ocopa), plato fuerte, postre y bebida',
-        precio: 15.00,
+        precio: 13.00,
+        imagen_url: img('dona-pepa.jpg'),
         items: [
-          { tipo: 'entrada', nombre: 'Sopa o Ocopa' },
-          { tipo: 'plato_fuerte', nombre: 'Arroz con pollo' },
+          { tipo: 'entrada', nombre: 'Sopa o Ocopa', imagen_url: img('ocopa.jpg') },
+          { tipo: 'plato_fuerte', nombre: 'Arroz con pollo', imagen_url: img('arroz_pollo.jpg') },
           { tipo: 'postre', nombre: 'Mazamorra morada' },
           { tipo: 'bebida', nombre: 'Limonada' },
         ],
@@ -137,10 +140,11 @@ async function seed() {
       {
         nombre: 'Ejecutivo 2',
         descripcion: 'Entrada a elección (sopa u ocopa), plato fuerte, postre y bebida',
-        precio: 16.00,
+        precio: 13.00,
+        imagen_url: img('dona-pepa.jpg'),
         items: [
-          { tipo: 'entrada', nombre: 'Sopa u Ocopa' },
-          { tipo: 'plato_fuerte', nombre: 'Escabeche de pollo con arroz' },
+          { tipo: 'entrada', nombre: 'Sopa u Ocopa', imagen_url: img('ocopa.jpg') },
+          { tipo: 'plato_fuerte', nombre: 'Escabeche de pollo con arroz', imagen_url: img('escabeche.jpg') },
           { tipo: 'postre', nombre: 'Arroz con leche' },
           { tipo: 'bebida', nombre: 'Maracuyá' },
         ],
@@ -148,18 +152,18 @@ async function seed() {
     ];
     for (const m of menus) {
       const { rows: menuRows } = await client.query(
-        `INSERT INTO menus (id, negocio_id, nombre, descripcion, precio)
-         VALUES (gen_random_uuid(), $1, $2, $3, $4)
+        `INSERT INTO menus (id, negocio_id, nombre, descripcion, precio, imagen_url)
+         VALUES (gen_random_uuid(), $1, $2, $3, $4, $5)
          ON CONFLICT DO NOTHING
          RETURNING id`,
-        [negocioId, m.nombre, m.descripcion, m.precio],
+        [negocioId, m.nombre, m.descripcion, m.precio, m.imagen_url],
       );
       if (menuRows.length > 0) {
         for (const item of m.items) {
           await client.query(
-            `INSERT INTO menu_items (id, menu_id, tipo, nombre)
-             VALUES (gen_random_uuid(), $1, $2, $3)`,
-            [menuRows[0].id, item.tipo, item.nombre],
+            `INSERT INTO menu_items (id, menu_id, tipo, nombre, imagen_url)
+             VALUES (gen_random_uuid(), $1, $2, $3, $4)`,
+            [menuRows[0].id, item.tipo, item.nombre, item.imagen_url || null],
           );
         }
       }

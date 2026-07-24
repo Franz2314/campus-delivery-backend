@@ -21,7 +21,7 @@ const menuModel = {
     const menus = result.rows;
     for (const menu of menus) {
       const items = await query(
-        'SELECT id, tipo, nombre, descripcion FROM menu_items WHERE menu_id = $1 ORDER BY tipo',
+        'SELECT id, tipo, nombre, descripcion, imagen_url FROM menu_items WHERE menu_id = $1 ORDER BY tipo',
         [menu.id],
       );
       menu.items = items.rows;
@@ -34,7 +34,7 @@ const menuModel = {
     if (!result.rows[0]) return null;
     const menu = result.rows[0];
     const items = await query(
-      'SELECT id, tipo, nombre, descripcion FROM menu_items WHERE menu_id = $1 ORDER BY tipo',
+      'SELECT id, tipo, nombre, descripcion, imagen_url FROM menu_items WHERE menu_id = $1 ORDER BY tipo',
       [id],
     );
     menu.items = items.rows;
@@ -77,7 +77,7 @@ const menuModel = {
     const menus = result.rows;
     for (const menu of menus) {
       const items = await query(
-        'SELECT id, tipo, nombre, descripcion FROM menu_items WHERE menu_id = $1 ORDER BY tipo',
+        'SELECT id, tipo, nombre, descripcion, imagen_url FROM menu_items WHERE menu_id = $1 ORDER BY tipo',
         [menu.id],
       );
       menu.items = items.rows;
